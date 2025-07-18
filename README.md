@@ -4,7 +4,6 @@
 
 ---
 ### Table of Contents
-:::note[]
 - [Getting Started](#getting-started)
 - [Installation Instructions](#installation-instructions)
 - [SDK integration](#sdk-integration)
@@ -35,7 +34,6 @@
     - [`FreedomResult.Error`](#freedomresulterror)
 - [Data Structures](#data-structures)
 - [Support](#support)
-  :::
 ---
 
 ### Getting Started
@@ -47,34 +45,28 @@
 ---
 ### Installation Instructions
 
-#### 1. Prepare directory
-&emsp;Make sure to create a `libs` folder in your `app` module if it doesn't exist.
+#### 1. Add JitPack repository
 
-#### 2. Unzip archive
-&emsp;Place contents of the provided ZIP archive in the `libs` folder.
+Add JitPack to your project's `settings.gradle.kts`:
 
-#### 3. Add repositories
-```groovy
-repositories {
-    // other repos...
-    maven(url = "https://jitpack.io")
-    maven { url = uri("./app/libs") }
+```kotlin
+dependencyResolutionManagement {
+  repositories {
+    google()
+    mavenCentral()
+    maven { url = uri("https://jitpack.io") } // Add this line
+  }
 }
 ```
 
-#### 4. Add dependency
-&emsp;Add the following lines to your `app` module's `build.gradle.kts` file:
-
-```groovy
+#### 2. Add Dependency
+```kotlin
 dependencies {
-    // other dependencies...
-
-    // Payment SDK library integration
-    implementation("kz.freedompay:payment-sdk:1.0.0")
+    implementation("com.github.freedompay-global:merchant-sdk-android:${specifyTheLatestVersion}")
 }
 ```
 
-#### 5. Sync the project
+#### 3. Sync the project
 
 ---
 
@@ -83,11 +75,11 @@ dependencies {
 #### Initialize
 
 &emsp;To initialize the **Freedom Payment SDK**, call the `create` method of the `FreedomAPI` class. This method requires *three parameters*:
-:::note[]
-- Your merchant ID
-- Your merchant secret key
-- The payment region
-:::
+> **NOTE**
+> - Your merchant ID
+> - Your merchant secret key
+> - The payment region
+
 ```kotlin
 val merchantId = "123456"
 val secretKey = "123456789ABCDEF"
@@ -217,9 +209,8 @@ freedomApi.setConfiguration(sdkConfiguration)
 #### Create Payment page/frame
 &emsp;To initiate a new payment transaction and display the payment page, call the `createPaymentPage` or `createPaymentFrame` method on your `FreedomAPI` instance. This method handles the presentation of the payment page/frame within the previously configured `PaymentView`.
 
-:::warning[]
-These methods require that a `PaymentView` has been set using [`freedomApi.setPaymentView()`](#integrating-the-paymentview-optional) prior to calling them.
-:::
+> **WARNING**
+> These methods require that a `PaymentView` has been set using [`freedomApi.setPaymentView()`](#integrating-the-paymentview-optional) prior to calling them.
 
 &emsp;These methods accept several parameters to define the payment details:
 
@@ -283,9 +274,8 @@ freedomApi.getPaymentStatus(paymentId = 123456L) { result: FreedomResult<Status>
 ```
 
 #### Make Clearing Payment
-:::info[]
-This method is specifically designed for merchants who have **auto-clearing disabled** in their SDK configuration. Auto-clearing can be managed via the `autoClearing` property within the [`OperationalConfiguration`](#table-operationalconfiguration) of your `SdkConfiguration`.
-:::
+> **NOTE**
+> This method is specifically designed for merchants who have **auto-clearing disabled** in their SDK configuration. Auto-clearing can be managed via the `autoClearing` property within the [`OperationalConfiguration`](#table-operationalconfiguration) of your `SdkConfiguration`.
 
 &emsp;Use the `makeClearingPayment` method to explicitly initiate the clearing (final capture) of funds for a previously authorized payment. This method gives you the flexibility to clear an amount that may be different from the original amount specified when the payment was created (e.g., for partial captures).
 
@@ -315,9 +305,8 @@ freedomApi.makeClearingPayment(paymentId = 123456L) { result: FreedomResult<Clea
 ```
 
 #### Make Cancel Payment
-:::info[]
-This method is specifically designed for merchants who have **auto-clearing disabled** in their SDK configuration. Auto-clearing can be managed via the `autoClearing` property within the [`OperationalConfiguration`](#table-operationalconfiguration) of your `SdkConfiguration`.
-:::
+> **NOTE**
+> This method is specifically designed for merchants who have **auto-clearing disabled** in their SDK configuration. Auto-clearing can be managed via the `autoClearing` property within the [`OperationalConfiguration`](#table-operationalconfiguration) of your `SdkConfiguration`.
 
 &emsp;Use the `makeCancelPayment` method to reverse an authorized payment, effectively unblocking the amount on the customer's card. This ensures that the funds will not be charged.
 
@@ -376,9 +365,8 @@ freedomApi.makeRevokePayment(paymentId = 123456L) { result: FreedomResult<Paymen
 #### Add New Card
 &emsp;The `addNewCard` method facilitates the secure tokenization and addition of a new payment card to a customer's profile. This process allows future payments to be made without requiring the customer to re-enter their card details.
 
-:::warning[]
-This method requires that a `PaymentView` has been set using [`freedomApi.setPaymentView()`](#integrating-the-paymentview-optional) prior to calling it, as it will display a web-based form within the `PaymentView` for the customer to securely enter their card details.
-:::
+> **WARNING**
+> This method requires that a `PaymentView` has been set using [`freedomApi.setPaymentView()`](#integrating-the-paymentview-optional) prior to calling it, as it will display a web-based form within the `PaymentView` for the customer to securely enter their card details.
 
 &emsp;This method takes these parameters:
 
@@ -468,9 +456,8 @@ freedomApi.removeAddedCard(
 #### Create Card Payment
 &emsp;The `createCardPayment` method is used to initiate a payment using a previously tokenized (saved) card.
 
-:::info[]
-A payment initiated with `createCardPayment` is a two-stage process. After successfully calling this method, the created payment must be confirmed using either the [`confirmCardPayment`](#confirm-card-payment) or [`confirmDirectPayment`](#confirm-direct-payment) method to finalize the transaction.
-:::
+> **NOTE**
+> A payment initiated with `createCardPayment` is a two-stage process. After successfully calling this method, the created payment must be confirmed using either the [`confirmCardPayment`](#confirm-card-payment) or [`confirmDirectPayment`](#confirm-direct-payment) method to finalize the transaction.
 
 &emsp;This method takes these parameters:
 
@@ -508,9 +495,8 @@ freedomApi.createCardPayment(
 #### Confirm Card Payment
 &emsp;The `confirmCardPayment` method is used to finalize a payment that was previously initiated with a saved card using [`createCardPayment`](#create-card-payment).
 
-:::warning[]
-This method requires that a `PaymentView` has been set using [`freedomApi.setPaymentView()`](#integrating-the-paymentview-optional) prior to calling it, as it will display a web-based form within the `PaymentView` for CVC entry and 3DS authentication.
-:::
+> **WARNING**
+> This method requires that a `PaymentView` has been set using [`freedomApi.setPaymentView()`](#integrating-the-paymentview-optional) prior to calling it, as it will display a web-based form within the `PaymentView` for CVC entry and 3DS authentication.
 
 &emsp;This method takes these parameters:
 
@@ -849,5 +835,6 @@ enum class Currency(val value: String) {
 
 ---
 ### Support
-:::info[If you have questions or need help, feel free to reach out! 👋]
+- **If you have questions or need help, feel free to reach out!** 👋
 - **Email**: support@freedompay.kz
+
