@@ -1,6 +1,8 @@
-### Payment SDK (Android, Kotlin)
+## Payment SDK (Android, Kotlin)
+---
+[![JitPack](https://jitpack.io/v/freedompay-global/merchant-sdk-android.svg)](https://jitpack.io/#freedompay-global/merchant-sdk-android)
 
-&emsp;The Payment SDK is a library that simplifies interaction with the Freedom Pay API. Supports Android 9 and above.
+The Payment SDK is a library that simplifies interaction with the Freedom Pay API. Supports Android 9 and above.
 
 ---
 ### Table of Contents
