@@ -1,54 +1,57 @@
-## Payment SDK (Android, Kotlin)
+# Merchant SDK (Android, Kotlin)
 [![JitPack](https://jitpack.io/v/freedompay-global/merchant-sdk-android.svg)](https://jitpack.io/#freedompay-global/merchant-sdk-android)
 
-The Payment SDK is a library that simplifies interaction with the Freedom Pay API. Supports Android 9 and above.
+&emsp;The Merchant SDK is a library that simplifies interaction with the Freedom Pay API. Supports Android 9 and above.
 
 ---
-### Table of Contents
-- [Getting Started](#getting-started)
-- [Installation Instructions](#installation-instructions)
-- [SDK integration](#sdk-integration)
-- [Integrating the PaymentView (Optional)](#integrating-the-paymentview-optional)
-  - [Adding `PaymentView`](#adding-paymentview)
-  - [Connecting `PaymentView`](#connecting-paymentview)
-  - [Tracking Loading Progress](#tracking-loading-progress-optional)
-- [SDK Configuration](#sdk-configuration)
-  - [`SdkConfiguration` Overview](#sdkconfiguration-overview)
-  - [Applying the Configuration](#applying-the-configuration)
-- [Working with the SDK](#working-with-the-sdk)
-  - [Create Payment page/frame](#create-payment-pageframe)
-  - [Get Payment status](#get-payment-status)
-  - [Make Clearing Payment](#make-clearing-payment)
-  - [Make Cancel Payment](#make-cancel-payment)
-  - [Make Revoke Payment](#make-revoke-payment)
-  - [Add New Card](#add-new-card)
-  - [Get Added Cards](#get-added-cards)
-  - [Remove Added Card](#remove-added-card)
-  - [Create Card Payment](#create-card-payment)
-  - [Confirm Card Payment](#confirm-card-payment)
-  - [Confirm Direct Payment](#confirm-direct-payment)
-- [Google Pay Integration](#google-pay-integration)
-  - [Create Google Payment](#create-google-payment)
-  - [Confirm Google Payment](#confirm-google-payment)
-- [Error Handling and Results](#error-handling-and-results)
-    - [`FreedomResult.Success<T>`](#freedomresultsuccesst)
-    - [`FreedomResult.Error`](#freedomresulterror)
-- [Data Structures](#data-structures)
-- [Support](#support)
+# Table of Contents
+> **NOTE**
+> - [Getting Started](#getting-started)
+> - [Installation Instructions](#installation-instructions)
+> - [SDK integration](#sdk-integration)
+> - [Integrating the PaymentView (Optional)](#integrating-the-paymentview-optional)
+>   - [Adding `PaymentView`](#adding-paymentview)
+>   - [Connecting `PaymentView`](#connecting-paymentview)
+>   - [Tracking Loading Progress](#tracking-loading-progress-optional)
+> - [SDK Configuration](#sdk-configuration)
+>   - [`SdkConfiguration` Overview](#sdkconfiguration-overview)
+>   - [Applying the Configuration](#applying-the-configuration)
+> - [Working with the SDK](#working-with-the-sdk)
+>   - [Create Payment page/frame](#create-payment-pageframe)
+>   - [Get Payment status](#get-payment-status)
+>   - [Make Clearing Payment](#make-clearing-payment)
+>   - [Make Cancel Payment](#make-cancel-payment)
+>   - [Make Revoke Payment](#make-revoke-payment)
+>   - [Add New Card](#add-new-card)
+>   - [Get Added Cards](#get-added-cards)
+>   - [Remove Added Card](#remove-added-card)
+>   - [Create Card Payment](#create-card-payment)
+>   - [Confirm Card Payment](#confirm-card-payment)
+>   - [Confirm Direct Payment](#confirm-direct-payment)
+> - [Google Pay Integration](#google-pay-integration)
+>   - [1. Registering in Google Pay Business Console](#1-registering-in-google-pay-business-console)
+>   - [2. Integrating the Google Pay SDK into your project](#2-integrating-the-google-pay-sdk-into-your-project)
+>   - [3. Initialization of `PaymentsClient` and `PayButton`](#3-initialization-of-paymentsclient-and-paybutton)
+>   - [4. Creating a Google Pay Transaction](#4-creating-a-google-pay-transaction)
+>   - [5. Confirming a Google Pay Transaction](#5-confirming-a-google-pay-transaction)
+> - [Error Handling and Results](#error-handling-and-results)
+>     - [`FreedomResult.Success<T>`](#freedomresultsuccesst)
+>     - [`FreedomResult.Error` Sub-Types](#freedomresulterror-sub-types)
+> - [Data Structures](#data-structures)
+> - [Support](#support)
 ---
 
-### Getting Started
+# Getting Started
 
-&emsp;Before you begin integrating the **Freedom Payment SDK** into your Android app, ensure you have the following:
+&emsp;Before you begin integrating the **Freedom Merchant SDK** into your Android app, ensure you have the following:
 - An Android app project with a minimum API level of 28.
-- The **Freedom Payment SDK** ZIP file
 
 ---
-### Installation Instructions
+# Installation Instructions
 
-#### 1. Add JitPack repository
+## 1. Add JitPack repository
 
-Add JitPack to your project's `settings.gradle.kts`:
+&emsp;Add JitPack to your project's `settings.gradle.kts`:
 
 ```kotlin
 dependencyResolutionManagement {
@@ -60,34 +63,33 @@ dependencyResolutionManagement {
 }
 ```
 
-#### 2. Add Dependency
+## 2. Add Dependency
 ```kotlin
 dependencies {
     implementation("com.github.freedompay-global:merchant-sdk-android:${specifyTheLatestVersion}")
 }
 ```
 
-#### 3. Sync the project
+## 3. Sync the project
 
 ---
 
-### SDK integration
+# SDK integration
 
-#### Initialize
+## Initialize
 
-&emsp;To initialize the **Freedom Payment SDK**, call the `create` method of the `FreedomAPI` class. This method requires *three parameters*:
+&emsp;To initialize the **Freedom Merchant SDK**, call the `create` method of the `FreedomAPI` class. This method requires *three parameters*:
 > **NOTE**
 > - Your merchant ID
 > - Your merchant secret key
 > - The payment region
-
 ```kotlin
 val merchantId = "123456"
 val secretKey = "123456789ABCDEF"
 val region = Region.KZ
 val freedomApi = FreedomAPI.create(merchantId, secretKey, region)
 ```
-##### Table: `Region`
+### Table: `Region`
 | Enum Constant | Description        |
 |---------------|--------------------|
 | `KZ`          | Kazakhstan region. |
@@ -97,9 +99,9 @@ val freedomApi = FreedomAPI.create(merchantId, secretKey, region)
 
 ---
 
-### Integrating the PaymentView (Optional)
+# Integrating the PaymentView (Optional)
 
-#### Adding `PaymentView`
+## Adding `PaymentView`
 
 &emsp;Add the PaymentView to your activity's layout file:
  ```xml
@@ -109,14 +111,14 @@ val freedomApi = FreedomAPI.create(merchantId, secretKey, region)
     android:layout_height="match_parent"/>
  ```
 
-#### Connecting `PaymentView`
+## Connecting `PaymentView`
 
 &emsp;Pass the instance of your PaymentView to the SDK:
 ```kotlin
 freedomApi.setPaymentView(paymentView)
 ```
 
-#### Tracking Loading Progress (Optional)
+## Tracking Loading Progress (Optional)
 
 &emsp;To track the loading progress of the payment page, use the `onLoadingStateChanged` listener:
 ```kotlin
@@ -126,11 +128,11 @@ paymentView.onLoadingStateChanged { isLoading: Boolean ->
 ```
 
 ---
-### SDK Configuration
+# SDK Configuration
 
 &emsp;The SDK's behavior is controlled through its configuration, which you manage using the `SdkConfiguration` data class. This class acts as a central container, encapsulating two key components: `UserConfiguration` for customer-specific settings and `OperationalConfiguration` for general operational parameters.
 
-#### `SdkConfiguration` Overview
+## `SdkConfiguration` Overview
 
 The `SdkConfiguration` object is passed to the SDK via `freedomApi.setConfiguration()`.
 
@@ -141,42 +143,42 @@ data class SdkConfiguration(
 )
 ```
 
-##### Table: `UserConfiguration`
+### Table: `UserConfiguration`
 &emsp;This data class holds customer-specific details.
 
-| Property           | Type      | Description                                                                                                                        | Default Value |
-|--------------------|-----------|------------------------------------------------------------------------------------------------------------------------------------|---------------|
-| `userPhone`        | `String?` | Customer's phone number. If provided, it will be displayed on the payment page. If `null`, the user will be prompted to enter it.  | `null`        |
-| `userContactEmail` | `String?` | Customer's contact email.                                                                                                          | `null`        |
-| `userEmail`        | `String?` | Customer's email address. If provided, it will be displayed on the payment page. If `null`, the user will be prompted to enter it. | `null`        |
+| Property           | Type      | Description                                                                                                                        |
+|--------------------|-----------|------------------------------------------------------------------------------------------------------------------------------------|
+| `userPhone`        | `String?` | Customer's phone number. If provided, it will be displayed on the payment page. If `null`, the user will be prompted to enter it.  |
+| `userContactEmail` | `String?` | Customer's contact email.                                                                                                          |
+| `userEmail`        | `String?` | Customer's email address. If provided, it will be displayed on the payment page. If `null`, the user will be prompted to enter it. |
 
-##### Table: `OperationalConfiguration`
+### Table: `OperationalConfiguration`
 &emsp;This data class contains general operational settings for the SDK.
 
-| Property        | Type          | Description                                                                                                                                                    | Default Value                                                                   |
-|-----------------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
-| `testingMode`   | `Boolean?`    | Enables or disables test mode.                                                                                                                                 | `null`                                                                          |
-| `language`      | `Language?`   | Sets the language of the payment page. See [`Language`](#table-language) enum for available options.                                                           | `null`                                                                          |
-| `lifetime`      | `Int`         | Duration, in seconds, for which the payment page remains valid for completing a payment.                                                                       | `1800`                                                                          |
-| `autoClearing`  | `Boolean?`    | Activates automatic clearing of payments.                                                                                                                      | `null`                                                                          |
-| `checkUrl`      | `String?`     | URL to which the payment check will be sent.                                                                                                                   | `null`                                                                          |
-| `resultUrl`     | `String?`     | URL to which the payment result will be sent.                                                                                                                  | `null`                                                                          |
-| `requestMethod` | `HttpMethod?` | HTTP method used for requests to `checkUrl` or `resultUrl`. See [`HttpMethod`](#table-httpmethod) enum. Defaults to `GET` if `checkUrl` or `resultUrl` is set. | `HttpMethod.GET` (if `checkUrl` or `resultUrl` is not `null`, otherwise `null`) |
+| Property        | Type          | Description                                                                                                                                                                                                                 | Default Value                                                                   |
+|-----------------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
+| `testingMode`   | `Boolean?`    | Enables or disables test mode. If `null`, the value is inherited from the merchant's settings. A non-null value will override the merchant's setting.                                                                       | `null`                                                                          |
+| `language`      | `Language?`   | Sets the language of the payment page. See [`Language`](#table-language) enum for available options. If `null`, the value is inherited from the merchant's settings. A non-null value will override the merchant's setting. | `null`                                                                          |
+| `lifetime`      | `Int`         | Duration, in seconds, for which the payment page remains valid for completing a payment.                                                                                                                                    | `1800`                                                                          |
+| `autoClearing`  | `Boolean?`    | Activates automatic clearing of payments. If `null`, the value is inherited from the merchant's settings. A non-null value will override the merchant's setting.                                                            | `null`                                                                          |
+| `checkUrl`      | `String?`     | URL to which the payment check will be sent.                                                                                                                                                                                | `null`                                                                          |
+| `resultUrl`     | `String?`     | URL to which the payment result will be sent.                                                                                                                                                                               | `null`                                                                          |
+| `requestMethod` | `HttpMethod?` | HTTP method used for requests to `checkUrl` or `resultUrl`. See [`HttpMethod`](#table-httpmethod) enum. Defaults to `GET` if `checkUrl` or `resultUrl` is set.                                                              | `HttpMethod.GET` (if `checkUrl` or `resultUrl` is not `null`, otherwise `null`) |
 
-##### Table: `Language`
+### Table: `Language`
 | Enum Constant | Description                      |
 |---------------|----------------------------------|
 | `KZ`          | SDK uses the `Kazakh` language.  |
 | `RU`          | SDK uses the `Russian` language. |
 | `EN`          | SDK uses the `English` language. |
 
-##### Table: `HttpMethod`
+### Table: `HttpMethod`
 | Enum Constant | Description                      |
 |---------------|----------------------------------|
 | `GET`         | SDK uses the HTTP `GET` method.  |
 | `POST`        | SDK uses the HTTP `POST` method. |
 
-#### Applying the Configuration
+## Applying the Configuration
 &emsp;To apply your desired SDK configuration, create an instance of `SdkConfiguration` and pass it to the `freedomApi.setConfiguration()` method:
 
 ```kotlin
@@ -203,11 +205,11 @@ freedomApi.setConfiguration(sdkConfiguration)
 ```
 
 ---
-### Working with the SDK
+# Working with the SDK
 
 &emsp;This section details the primary methods available in the SDK for managing payments within your application.
 
-#### Create Payment page/frame
+## Create Payment page/frame
 &emsp;To initiate a new payment transaction and display the payment page, call the `createPaymentPage` or `createPaymentFrame` method on your `FreedomAPI` instance. This method handles the presentation of the payment page/frame within the previously configured `PaymentView`.
 
 > **WARNING**
@@ -215,10 +217,10 @@ freedomApi.setConfiguration(sdkConfiguration)
 
 &emsp;These methods accept several parameters to define the payment details:
 
-| Parameter        | Type                                       | Description                                                                                                                                   | Constraints/Notes |
-|------------------|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `paymentRequest` | `StandardPaymentRequest`                   | Essential details required to initiate a new payment. See [`StandardPaymentRequest`](#standardpaymentrequest-structure) model.                |                   |
-| `onResult`       | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked upon the completion of the payment process. See [`PaymentResponse`](#paymentresponse-structure) model. |                   |
+| Parameter        | Type                                       | Description                                                                                                                                   |
+|------------------|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `paymentRequest` | `StandardPaymentRequest`                   | Essential details required to initiate a new payment. See [`StandardPaymentRequest`](#standardpaymentrequest-structure) model.                |
+| `onResult`       | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked upon the completion of the payment process. See [`PaymentResponse`](#paymentresponse-structure) model. |
 
 &emsp;The process returns an [`FreedomResult<PaymentResponse>`](#error-handling-and-results) object, which can be either:
 - **Success**: Contains a `PaymentResponse` object.
@@ -231,7 +233,6 @@ val paymentRequest = StandardPaymentRequest(
     description = "Monthly Subscription",
     userId = "user12345",
     orderId = "SUB-2025-001",
-    extraParams = hashMapOf("plan" to "premium")
 )
 freedomApi.createPaymentPage(
     paymentRequest = paymentRequest
@@ -247,15 +248,15 @@ freedomApi.createPaymentPage(
 }
 ```
 
-#### Get Payment status
+## Get Payment status
 &emsp;To retrieve the current status of a previously initiated payment, use the `getPaymentStatus` method.
 
 &emsp;This method takes these parameters:
 
-| Parameter   | Type                              | Description                                                                                                            | Constraints/Notes |
-|-------------|-----------------------------------|------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `paymentId` | `Long`                            | Unique identifier of the payment you want to check.                                                                    |                   |
-| `onResult`  | `(FreedomResult<Status>) -> Unit` | Callback function that will be invoked with the result of the payment status. See [`Status`](#status-structure) model. |                   |
+| Parameter   | Type                              | Description                                                                                                            |
+|-------------|-----------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| `paymentId` | `Long`                            | Unique identifier of the payment you want to check.                                                                    |
+| `onResult`  | `(FreedomResult<Status>) -> Unit` | Callback function that will be invoked with the result of the payment status. See [`Status`](#status-structure) model. |
 
 &emsp;The process returns an [`FreedomResult<Status>`](#error-handling-and-results) object, which can be either:
 - **Success**: Contains a `Status` object.
@@ -274,7 +275,7 @@ freedomApi.getPaymentStatus(paymentId = 123456L) { result: FreedomResult<Status>
 }
 ```
 
-#### Make Clearing Payment
+## Make Clearing Payment
 > **NOTE**
 > This method is specifically designed for merchants who have **auto-clearing disabled** in their SDK configuration. Auto-clearing can be managed via the `autoClearing` property within the [`OperationalConfiguration`](#table-operationalconfiguration) of your `SdkConfiguration`.
 
@@ -305,7 +306,7 @@ freedomApi.makeClearingPayment(paymentId = 123456L) { result: FreedomResult<Clea
 }
 ```
 
-#### Make Cancel Payment
+## Make Cancel Payment
 > **NOTE**
 > This method is specifically designed for merchants who have **auto-clearing disabled** in their SDK configuration. Auto-clearing can be managed via the `autoClearing` property within the [`OperationalConfiguration`](#table-operationalconfiguration) of your `SdkConfiguration`.
 
@@ -313,10 +314,10 @@ freedomApi.makeClearingPayment(paymentId = 123456L) { result: FreedomResult<Clea
 
 &emsp;This method takes these parameters:
 
-| Parameter   | Type                                       | Description                                                                                                                                    | Constraints/Notes |
-|-------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `paymentId` | `Long`                                     | Unique identifier of the payment you want to cancel.                                                                                           |                   |
-| `onResult`  | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the result of the cancellation attempt. See [`PaymentResponse`](#paymentresponse-structure) model. |                   |
+| Parameter   | Type                                       | Description                                                                                                                                    |
+|-------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `paymentId` | `Long`                                     | Unique identifier of the payment you want to cancel.                                                                                           |
+| `onResult`  | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the result of the cancellation attempt. See [`PaymentResponse`](#paymentresponse-structure) model. |
 
 &emsp;The process returns an [`FreedomResult<PaymentResponse>`](#error-handling-and-results) object, which can be either:
 - **Success**: Contains a `PaymentResponse` object.
@@ -335,7 +336,7 @@ freedomApi.makeCancelPayment(paymentId = 123456L) { result: FreedomResult<Paymen
 }
 ```
 
-#### Make Revoke Payment
+## Make Revoke Payment
 &emsp;The `makeRevokePayment` method allows you to process a full or partial refund for a completed payment.
 
 &emsp;This method takes these parameters:
@@ -363,7 +364,7 @@ freedomApi.makeRevokePayment(paymentId = 123456L) { result: FreedomResult<Paymen
 }
 ```
 
-#### Add New Card
+## Add New Card
 &emsp;The `addNewCard` method facilitates the secure tokenization and addition of a new payment card to a customer's profile. This process allows future payments to be made without requiring the customer to re-enter their card details.
 
 > **WARNING**
@@ -397,7 +398,7 @@ freedomApi.addNewCard(
     }
 }
 ```
-#### Get Added Cards
+## Get Added Cards
 &emsp;The `getAddedCards` method allows you to retrieve a list of payment cards that have been previously added and tokenized for a specific user. 
 
 &emsp;This method takes these parameters:
@@ -424,7 +425,7 @@ freedomApi.getAddedCards(userId = "user12345") { result: FreedomResult<List<Card
 }
 ```
 
-#### Remove Added Card
+## Remove Added Card
 &emsp;`removeAddedCard` method allows you to securely remove a previously tokenized payment card associated with a specific user.
 
 &emsp;This method takes these parameters:
@@ -454,7 +455,7 @@ freedomApi.removeAddedCard(
     }
 }
 ```
-#### Create Card Payment
+## Create Card Payment
 &emsp;The `createCardPayment` method is used to initiate a payment using a previously tokenized (saved) card.
 
 > **NOTE**
@@ -462,10 +463,10 @@ freedomApi.removeAddedCard(
 
 &emsp;This method takes these parameters:
 
-| Parameter        | Type                                       | Description                                                                                                                                                     | Constraints/Notes |
-|------------------|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `paymentRequest` | `TokenizedPaymentRequest`                  | Essential details required to initiate a new payment with previously tokenized card. See [`TokenizedPaymentRequest`](#tokenizedpaymentrequest-structure) model. |                   |
-| `onResult`       | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the result of the payment initiation. See [`PaymentResponse`](#paymentresponse-structure) model.                    |                   |
+| Parameter        | Type                                       | Description                                                                                                                                                     |
+|------------------|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `paymentRequest` | `TokenizedPaymentRequest`                  | Essential details required to initiate a new payment with previously tokenized card. See [`TokenizedPaymentRequest`](#tokenizedpaymentrequest-structure) model. |
+| `onResult`       | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the result of the payment initiation. See [`PaymentResponse`](#paymentresponse-structure) model.                    |
 
 &emsp;The process returns an [`FreedomResult<PaymentResponse>`](#error-handling-and-results) object, which can be either:
 - **Success**: Contains a `PaymentResponse` object.
@@ -493,7 +494,7 @@ freedomApi.createCardPayment(
     }
 }
 ```
-#### Confirm Card Payment
+## Confirm Card Payment
 &emsp;The `confirmCardPayment` method is used to finalize a payment that was previously initiated with a saved card using [`createCardPayment`](#create-card-payment).
 
 > **WARNING**
@@ -501,10 +502,10 @@ freedomApi.createCardPayment(
 
 &emsp;This method takes these parameters:
 
-| Parameter   | Type                                            | Description                                                                                                                                        | Constraints/Notes |
-|-------------|-------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `paymentId` | `Long`                                          | Unique identifier of the payment to confirm. This paymentId is obtained from the [`createCardPayment`](#create-card-payment) method.               |                   |
-| `onResult`  | `(FreedomResult<ConfirmPaymentStatus>) -> Unit` | Callback function that will be invoked with the result of the refund process. See [`ConfirmPaymentStatus`](#confirmpaymentstatus-structure) model. |                   |
+| Parameter   | Type                                            | Description                                                                                                                                        |
+|-------------|-------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `paymentId` | `Long`                                          | Unique identifier of the payment to confirm. This paymentId is obtained from the [`createCardPayment`](#create-card-payment) method.               |
+| `onResult`  | `(FreedomResult<ConfirmPaymentStatus>) -> Unit` | Callback function that will be invoked with the result of the refund process. See [`ConfirmPaymentStatus`](#confirmpaymentstatus-structure) model. |
 
 &emsp;The process returns an [`FreedomResult<ConfirmPaymentStatus>`](#error-handling-and-results) object, which can be either:
 - **Success**: Contains a `ConfirmPaymentStatus` object.
@@ -523,15 +524,15 @@ freedomApi.confirmCardPayment(paymentId = 123456L) { result: FreedomResult<Confi
 }
 ```
 
-#### Confirm Direct Payment
+## Confirm Direct Payment
 &emsp;The `confirmDirectPayment` method is used to finalize a payment that was previously initiated with a saved card using [`createCardPayment`](#create-card-payment).
 
 &emsp;This method takes these parameters:
 
-| Parameter   | Type                                       | Description                                                                                                                              | Constraints/Notes |
-|-------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `paymentId` | `Long`                                     | Unique identifier of the payment to confirm. This paymentId is obtained from the [`createCardPayment`](#create-card-payment) method.     |                   |
-| `onResult`  | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the result of the refund process. See [`PaymentResponse`](#paymentresponse-structure) model. |                   |
+| Parameter   | Type                                       | Description                                                                                                                              |
+|-------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `paymentId` | `Long`                                     | Unique identifier of the payment to confirm. This paymentId is obtained from the [`createCardPayment`](#create-card-payment) method.     |
+| `onResult`  | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the result of the refund process. See [`PaymentResponse`](#paymentresponse-structure) model. |
 
 &emsp;The process returns an [`FreedomResult<PaymentResponse>`](#error-handling-and-results) object, which can be either:
 - **Success**: Contains a `PaymentResponse` object.
@@ -551,21 +552,92 @@ freedomApi.confirmDirectPayment(paymentId = 123456L) { result: FreedomResult<Pay
 ```
 
 ---
-### Google Pay Integration
+# Google Pay Integration
 
-&emsp;These methods facilitate integrating Google Pay into your application through the SDK. For comprehensive instructions on setting up Google Pay in your project (e.g., configuring PaymentDataRequest, handling the Google Pay sheet, and obtaining the payment token), please refer to the [official Google Pay API for Android documentation](https://developers.google.com/pay/api/android).
+&emsp;These methods facilitate integrating Google Pay into your application through the SDK. Our SDK's methods bridge your Google Pay implementation with our payment gateway, handling the transaction processing.
 
-&emsp;Our SDK's methods bridge your Google Pay implementation with our payment gateway, handling the transaction processing.
+&emsp;Before you begin, you must register and configure your application in the Google Pay Business Console.
 
-#### Create Google Payment
+- [1. Registering in Google Pay Business Console](#1-registering-in-google-pay-business-console)
+- [2. Integrating the Google Pay SDK into your project](#2-integrating-the-google-pay-sdk-into-your-project)
+- [3. Initialization of `PaymentsClient` and `PayButton`](#3-initialization-of-paymentsclient-and-paybutton)
+- [4. Creating a Google Pay Transaction](#4-creating-a-google-pay-transaction)
+- [5. Confirming a Google Pay Transaction](#5-confirming-a-google-pay-transaction)
+
+## 1. Registering in Google Pay Business Console
+
+> **NOTE**
+> - **Sign Up for Google Pay Business Console**: Visit the Google Pay Business Console, sign in with a Google account, and click "Get Started".
+> - **Create a Project & Set Up Android Integration**: Create a new project, navigate to "Google Pay API", and select "Create new integration". Enter your app's details, including the app name, "Android" as the platform, package name, and the SHA-1 certificate fingerprint.
+> - **Configure Android Integration**: On the "Google Pay API → Android Integration" page, verify the package name and SHA-1 fingerprint to ensure the project is correctly linked to your app.
+> - **Submit App Screenshots for Approval**: Google requires screenshots of your payment flow for review. You must upload screenshots of the item selection, pre-purchase confirmation, payment method selection with the Google Pay option, the Google Pay checkout screen, and the post-purchase confirmation. After uploading, click "Submit for approval" and await Google's review.
+> - **Go Live with Google Pay**: Once approved, switch from test to production mode and test real transactions to ensure smooth payments.
+
+## 2. Integrating the Google Pay SDK into your project
+
+&emsp;After registering, integrate the Google Pay SDK into your app by adding the following dependency to your `build.gradle.kts` file:
+```groovy
+implementation("com.google.android.gms:play-services-wallet:19.2.1")
+```
+
+&emsp;Next, update your `AndroidManifest.xml` to enable the Google Pay API:
+```xml
+<application>
+    ...
+    <!-- Enables the Google Pay API -->
+    <meta-data android:name="com.google.android.gms.wallet.api.enabled"
+        android:value="true" />
+</application>
+```
+
+&emsp;Add `PayButton` to your XML layout file where you want it to appear:
+```xml
+<com.google.android.gms.wallet.button.PayButton
+    android:id="@+id/buttonPaymentByGoogle"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    />
+```
+
+## 3. Initialization of `PaymentsClient` and `PayButton`
+
+&emsp;To initialize the payment button and the Google Pay `PaymentsClient` in your activity:
+```kotlin
+val googlePayButton: PayButton = findViewById(R.id.buttonPaymentByGoogle)
+googlePayButton.initialize(
+    ButtonOptions.newBuilder()
+        .setButtonType(ButtonType.CHECKOUT)
+        .setButtonTheme(ButtonTheme.LIGHT)
+        .build()
+)
+
+val googlePaymentsClient = Wallet.getPaymentsClient(
+    this,
+    Wallet.WalletOptions.Builder()
+        .setEnvironment(WalletConstants.ENVIRONMENT_PRODUCTION)
+        .setTheme(WalletConstants.THEME_LIGHT)
+        .build()
+)
+```
+
+&emsp;The `Wallet.getPaymentsClient` method is used to get an instance of `PaymentsClient`. It has the following environments:
+
+| Parameter                | Value                  |
+|--------------------------|------------------------|
+| `ENVIRONMENT_PRODUCTION` | Production environment |
+| `ENVIRONMENT_TEST`       | Test environment       |
+
+## 4. Creating a Google Pay Transaction
+
+### Step 4.1. Create Google Payment
 &emsp;The `createGooglePayment` method is the first step in processing a payment via Google Pay using the SDK. This method initiates a Google Pay payment.
 
 &emsp;This method takes these parameters:
 
-| Parameter        | Type                                     | Description                                                                                                                                     | Constraints/Notes |
-|------------------|------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `paymentRequest` | `StandardPaymentRequest`                 | Essential details required to initiate a new payment. See [`StandardPaymentRequest`](#standardpaymentrequest-structure) model.                  |                   |
-| `onResult`       | `(FreedomResult<GooglePayment>) -> Unit` | Callback function that will be invoked with the result of the Google payment initiation. See [`GooglePayment`](#googlepayment-structure) model. |                   |
+| Parameter        | Type                                     | Description                                                                                                                                     |
+|------------------|------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| `paymentRequest` | `StandardPaymentRequest`                 | Essential details required to initiate a new payment. See [`StandardPaymentRequest`](#standardpaymentrequest-structure) model.                  |
+| `onResult`       | `(FreedomResult<GooglePayment>) -> Unit` | Callback function that will be invoked with the result of the Google payment initiation. See [`GooglePayment`](#googlepayment-structure) model. |
 
 &emsp;The process returns an [`FreedomResult<GooglePayment>`](#error-handling-and-results) object, which can be either:
 - **Success**: Contains a `GooglePayment` object.
@@ -577,33 +649,143 @@ val paymentRequest = StandardPaymentRequest(
     currency = Currency.KZT,
     description = "Google Pay Purchase",
     userId = "user12345",
-    extraParams = hashMapOf("plan" to "premium_gpay")
 )
 
-freedomApi.createGooglePayment(
-    paymentRequest = paymentRequest
-) { result: FreedomResult<GooglePayment> ->
-    when (result) {
-        is FreedomResult.Success -> {
-            // Google Pay payment initiated successfully.
-        }
-        is FreedomResult.Error -> {
-            // Failed to initiate Google Payment with SDK
+googlePayButton.setOnClickListener {
+    freedomApi.createGooglePayment(
+      paymentRequest = paymentRequest
+    ) { result: FreedomResult<GooglePayment> ->
+        when (result) {
+            is FreedomResult.Success -> {
+                val googlePayment = result.value
+                // Initiates the payment data loading using Google Pay.
+                AutoResolveHelper.resolveTask(
+                    googlePaymentsClient.loadPaymentData(createPaymentDataRequest()),
+                    this,
+                    REQUEST_CODE
+                )
+            }
+            is FreedomResult.Error -> {
+                // Failed to initiate Google Payment with SDK
+            }
         }
     }
 }
+
+companion object {
+  // The request code that will be used when calling.
+  const val REQUEST_CODE = 123
+}
 ```
 
-#### Confirm Google Payment
-&emsp;The `confirmGooglePayment` method is the final step in processing a Google Pay transaction with the SDK. After you have successfully obtained the Google Pay token from the Google Pay API (e.g., from PaymentData in onActivityResult), you pass this token along with the `payment` received from [`createGooglePayment`](#create-google-payment) to this method to finalize the transaction.
+> **NOTE**
+> - `createPaymentDataRequest()` is a method that returns a `PaymentDataRequest` object. This object defines the parameters and requirements for the payment data request, such as payment methods, shipping address, and more.
+> - `loadPaymentData()` initiates an asynchronous task to load payment data using the provided request.
+> - `AutoResolveHelper.resolveTask<PaymentData>()`is used to handle the payment data loading task.
+> - `REQUEST_CODE` is a request code used to identify the result of the task in the onActivityResult method.
+
+### Step 4.2. `createPaymentDataRequest()` implementation
+
+&emsp;Here is an example implementation of `createPaymentDataRequest()`:
+```kotlin
+private fun createPaymentDataRequest(): PaymentDataRequest {
+  
+    // Creating a new request builder.
+    val request = PaymentDataRequest.newBuilder()
+        // Setting transaction information.
+        .setTransactionInfo( 
+            TransactionInfo.newBuilder()
+                .setTotalPriceStatus(WalletConstants.TOTAL_PRICE_STATUS_FINAL) // Total price status
+                .setTotalPrice("12.00") // Total payment amount.
+                .setCurrencyCode("KZT") // Currency code (e.g., 'KZT').
+                .build()
+        )
+        // Specify the payment methods.
+        .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_CARD)
+        .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_TOKENIZED_CARD)
+    
+        // Setting requirements for the bank card.
+        .setCardRequirements(
+            CardRequirements.newBuilder()
+                // Allowed card networks.
+                .addAllowedCardNetworks(
+                    Arrays.asList(
+                        WalletConstants.CARD_NETWORK_VISA,
+                        WalletConstants.CARD_NETWORK_MASTERCARD
+                    )
+                )
+                .build()
+        )
+  
+    // Setting payment method tokenization parameters.
+    val params = PaymentMethodTokenizationParameters.newBuilder()
+        // Tokenization type (in this case, payment gateway).
+        .setPaymentMethodTokenizationType(
+          WalletConstants.PAYMENT_METHOD_TOKENIZATION_TYPE_PAYMENT_GATEWAY
+        )
+        // Parameters for the payment gateway (e.g., 'gateway', 'gatewayMerchantId').
+        .addParameter("gateway", "yourGateway")
+        .addParameter("gatewayMerchantId", "yourMerchantIdGivenFromYourGateway")
+        .build()
+  
+    // Passing tokenization parameters into the request.
+    request.setPaymentMethodTokenizationParameters(params)
+  
+    return request.build()
+}
+```
+> **NOTE**
+> - `PaymentDataRequest.newBuilder()` creates a new builder for the payment data request.
+> - `setTransactionInfo()` sets transaction information, such as the total payment amount and currency code.
+> - `PaymentMethodTokenizationParameters.newBuilder()` creates a builder for the payment method tokenization parameters.
+> - `setPaymentMethodTokenizationType()` sets the tokenization type (e.g., a payment gateway).
+> - `addParameter()` adds parameters for the payment gateway, such as `gateway` and `gatewayMerchantId`.
+> - `setPaymentMethodTokenizationParameters()` sets the tokenization parameters in the payment data request.
+
+### Step 4.3. Handling the `onActivityResult`
+
+&emsp;The result of the Google Pay task is handled in the `onActivityResult` method:
+```kotlin
+override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    when (requestCode) {
+        REQUEST_CODE -> {
+            when (resultCode) {
+                Activity.RESULT_OK -> {
+                    if (data == null) return
+
+                    val googlePayToken = paymentData?.paymentMethodToken?.token ?: return
+                    // After receiving the token, we confirm the payment by calling confirmGooglePayment.
+                }
+                AutoResolveHelper.RESULT_ERROR -> {
+                    if (data == null) return
+
+                    val status = AutoResolveHelper.getStatusFromIntent(data)
+                    // Handle the error status...
+                }
+                else -> {}
+            }
+        }
+        else -> {}
+    }
+}
+```
+> **NOTE**
+> - `onActivityResult` is used to handle the results returned by the Google Pay integration activity.
+> - `data` is the object containing the data returned by the activity.
+> - `Activity.RESULT_OK` indicates the successful completion of the operation.
+> - `AutoResolveHelper.RESULT_ERROR` indicates that an error occurred while resolving the request.
+
+## 5. Confirming a Google Pay Transaction
+&emsp;The `confirmGooglePayment` method is the final step in processing a Google Pay transaction with the SDK. After you have successfully obtained the Google Pay token from the Google Pay API (e.g., from PaymentData in onActivityResult), you pass this token along with the `googlePayment` received from [`createGooglePayment`](#step-41-create-google-payment) to this method to finalize the transaction.
 
 &emsp;This method takes these parameters:
 
-| Parameter  | Type                                       | Description                                                                                                                                                         | Constraints/Notes |
-|------------|--------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------|
-| `payment`  | `GooglePayment`                            | Payment previously obtained from a successful call to [`createGooglePayment`](#create-google-payment). See [`GooglePayment`](#googlepayment-structure) model.       |                   |
-| `token`    | `String`                                   | Encrypted payment token received from the Google Pay API. This token contains the sensitive card data securely.                                                     |                   |
-| `onResult` | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the final result of the Google Pay transaction confirmation. See [`PaymentResponse`](#paymentresponse-structure) model. |                   |
+| Parameter  | Type                                       | Description                                                                                                                                                           |
+|------------|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `payment`  | `GooglePayment`                            | Payment previously obtained from a successful call to [`createGooglePayment`](#step-41-create-google-payment). See [`GooglePayment`](#googlepayment-structure) model. |
+| `token`    | `String`                                   | Encrypted payment token received from the Google Pay API. This token contains the sensitive card data securely.                                                       |
+| `onResult` | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the final result of the Google Pay transaction confirmation. See [`PaymentResponse`](#paymentresponse-structure) model.   |
 
 &emsp;The process returns an [`FreedomResult<PaymentResponse>`](#error-handling-and-results) object, which can be either:
 - **Success**: Contains a `PaymentResponse` object.
@@ -627,58 +809,63 @@ sdk.confirmGooglePayment(
 
 ---
 
-### Error Handling and Results
+# Error Handling and Results
 &emsp;All asynchronous operations in the SDK (methods with an `onResult` callback) return their outcome encapsulated within a `FreedomResult` sealed interface.
 
 &emsp;The `FreedomResult` interface has two primary states: `Success` for successful completion and `Error` for any failures.
 
-#### `FreedomResult.Success<T>`
-- Represents a successful completion of the SDK operation.
-- `value: T`: Holds the actual result of the operation. The type `T` will vary depending on the method called (e.g., `Payment`, `List<Card>`, `ConfirmPaymentStatus`, `Unit`).
+![Mind Map of Freedom Result — Light](documentation-assets/FreedomResult(Light).png#gh-light-mode-only)
+![Mind Map of Freedom Result — Dark](documentation-assets/FreedomResult(Dark).png#gh-dark-mode-only)
 
-#### `FreedomResult.Error`
-&emsp;The `Error` type is a sealed interface itself, providing distinct types of errors for more precise handling.
+## `FreedomResult.Success<T>`
+- **Description**: Represents a successful completion of the SDK operation.
+- `value: T`: Holds the actual result data of the operation. The type T will vary depending on the specific method called (e.g., Payment, List<Card>, ConfirmPaymentStatus, Unit).
 
-- `ValidationError`: Indicates that one or more inputs provided to the SDK method were invalid or did not meet specified constraints (e.g., `amount` out of range, `userId` format mismatch). 
-    - `errors: List<ValidationErrorType>`: A list detailing all specific validation errors that occurred. See [`ValidationErrorType`](#table-validationerrortype) table.
-- `PaymentInitializationFailed`: Indicates a general failure during the initial setup or preparation of a payment, before it reaches the transaction processing stage.
-- `Transaction`: Represents an error encountered by the payment gateway during the transaction processing.
-    - `errorCode: Int`: A numerical code representing a specific transaction error. You can find an up-to-date reference of error codes [here](https://customer.freedompay.kz/dev/error?lang=en)
-    - `errorDescription: String?`: A human-readable description of the transaction error, if available.
-- `NetworkError`: Represents errors related to network connectivity or API responses.
-    - `Protocol`: Indicates an issue with the communication protocol or an unexpected response from the API.
-        - `code: Int`: An HTTP status code.
-        - `body: String?`: A human-readable description of the protocol error, if available.
-    - `Connectivity`: Indicates problems related to the device's network connection.
-        - `ConnectionFailed`: The network connection could not be established.
-        - `ConnectionTimeout`: The network request timed out.
-        - `Integrity`: An issue with the integrity of the network connection.
-    - `Unknown`: A general network error occurred that does not fall into more specific categories.
-- `InfrastructureError`: Represents errors related to the internal state or setup of the SDK.
-    - `SdkNotConfigured`: The SDK methods were called before `freedomApi.setConfiguration()` was successfully invoked.
-    - `SdkCleared`: The SDK methods were called after the SDK was cleared.
-    - `ParsingError`: An error occurred while parsing data (e.g., response from the server could not be deserialized).
-    - `WebView`: Errors specifically related to the internal `WebView` component used for displaying payment pages/frames.
-        - `PaymentViewIsNotInitialized`: A method requiring `PaymentView` was called, but `freedomApi.setPaymentView()` has not been called.
-        - `Failed`: An error occurred during the payment process.
+## `FreedomResult.Error` Sub-Types
+&emsp;The `Error` interface is a sealed hierarchy itself, providing distinct types of errors for more precise handling.
 
-#### Table `ValidationErrorType`
+### 1. `ValidationError`
+&emsp;Indicates that one or more inputs provided to the SDK method were invalid or did not meet specified constraints (e.g., `amount` out of range, `userId` format mismatch).
+- `errors: List<ValidationErrorType>`: A list detailing all specific validation errors that occurred. For a comprehensive list of types, refer to the [`ValidationErrorType`](#validationerrortype-structure) table.
 
-| Enum Constant            | Description                                                                |
-|--------------------------|----------------------------------------------------------------------------|
-| `INVALID_MERCHANT_ID`    | Provided merchant ID is invalid or missing.                                |
-| `INVALID_SECRET_KEY`     | Provided secret key is invalid or missing.                                 |
-| `INVALID_PAYMENT_AMOUNT` | Payment amount is outside the allowed range (`0.01` - `99999999.00`).      |
-| `INVALID_ORDER_ID`       | Provided order ID does not meet the specified length constraints.          |
-| `INVALID_USER_ID`        | Provided user ID does not meet the specified format or length constraints. |
-| `INVALID_CARD_TOKEN`     | Provided card token does not meet the specified length constraints.        |
+### 2. `PaymentInitializationFailed`
+&emsp;Indicates a general failure during the initial setup or preparation of a payment, before it reaches the transaction processing stage.
+
+### 3. `Transaction`
+&emsp;Represents an error encountered by the payment gateway during the transaction processing (e.g., card declines, insufficient funds, 3D Secure failures).
+
+- `errorCode: Int`: A numerical code representing a specific transaction error. You can find an up-to-date reference of error codes [here](https://customer.freedompay.kz/dev/error?lang=en).
+- `errorDescription: String?`: A human-readable description of the transaction error, if available.
+
+### 4. `NetworkError`
+&emsp;Represents errors related to network connectivity or API responses. This is a sealed interface with several specific network error types:
+
+- `Protocol`: Indicates an issue with the communication protocol or an unexpected response from the API.
+  - `code: Int`: An HTTP status code or an internal protocol error code.
+  - `body: String?`: The raw response body or a human-readable description of the protocol error, if available.
+
+- `Connectivity`: Indicates problems related to the device's network connection. This sealed interface includes the following specific errors:
+  - `ConnectionFailed`: The network connection could not be established.
+  - `ConnectionTimeout`: The network request timed out.
+  - `Integrity`: An issue with the integrity of the network connection (e.g., SSL/TLS certificate issues).
+- `Unknown`: A general network error occurred that does not fall into more specific categories.
+
+### 5. `InfrastructureError`
+&emsp;Represents errors related to the internal state, configuration, or core components of the SDK. This is a sealed interface with several specific infrastructure error types:
+
+- `SdkNotConfigured`: The SDK methods were called before `freedomApi.setConfiguration()` was successfully invoked.
+- `SdkCleared`: The SDK methods were called after the SDK's internal state was cleared, preventing further operations.
+- `ParsingError`: An error occurred while parsing data (e.g., a response from the server could not be deserialized).
+- `WebView`: Errors specifically related to the internal `WebView` component used for displaying payment pages or frames. This sealed interface includes the following specific errors:
+  - `PaymentViewIsNotInitialized`: A method requiring `PaymentView` was called, but `freedomApi.setPaymentView()` has not been called or the view is not ready.
+  - `Failed`: A general error occurred during the payment process within the `WebView`, without a more specific cause.
 
 ---
 
-### Data Structures
+# Data Structures
 &emsp;This section provides detailed descriptions of the data classes and enums used throughout the SDK, particularly in the results of various method calls.
 
-#### `StandardPaymentRequest` Structure
+## `StandardPaymentRequest` Structure
 &emsp;The `StandardPaymentRequest` data class encapsulates the essential details required to initiate a new payment transaction.
 
 | Parameter     | Type                               | Description                                                                                | Constraints/Notes                                                                                    |
@@ -690,7 +877,7 @@ sdk.confirmGooglePayment(
 | `orderId`     | `String?`                          | Unique identifier for this payment order within your system.                               | Optional. Defaults to null. Must contain 1-50 characters.                                            |
 | `extraParams` | `HashMap<String, String>?`         | Optional map of additional key-value pairs to pass custom data with the payment.           | Optional. Defaults to null.                                                                          |
 
-#### `TokenizedPaymentRequest` Structure
+## `TokenizedPaymentRequest` Structure
 &emsp;The `TokenizedPaymentRequest` data class is used to create payments with a previously saved and tokenized card, requiring the card's unique token along with standard payment details.
 
 | Parameter     | Type                                                 | Description                                                                                                                                                                    | Constraints/Notes                                                        |
@@ -703,7 +890,7 @@ sdk.confirmGooglePayment(
 | `orderId`     | `String`                                             | Unique identifier for this payment order within your system.                                                                                                                   | Must contain 1-50 characters.                                            |
 | `extraParams` | `HashMap<String, String>?`                           | Optional map of additional key-value pairs to pass custom data with the payment.                                                                                               | Optional. Defaults to null.                                              |
 
-#### `PaymentResponse` Structure
+## `PaymentResponse` Structure
 &emsp;The `PaymentResponse` data class represents a successful payment transaction.
 
 | Property     | Type      | Description                                     |
@@ -713,7 +900,7 @@ sdk.confirmGooglePayment(
 | `merchantId` | `String`  | ID of the merchant associated with the payment. |
 | `orderId`    | `String?` | Order ID provided during payment creation.      |
 
-#### `Status` Structure
+## `Status` Structure
 &emsp;Provides comprehensive details about the current state of a payment.
 
 | Property          | Type                    | Description                                                             |
@@ -738,7 +925,7 @@ sdk.confirmGooglePayment(
 | `createDate`      | `String`                | Date and time when the payment was created.                             |
 | `authCode`        | `Int?`                  | Authorization code for the payment.                                     |
 
-#### `RevokedPayment` Structure
+## `RevokedPayment` Structure
 &emsp;Details of an individual cancelled transaction.
 
 | Property        | Type      | Description                      |
@@ -746,7 +933,7 @@ sdk.confirmGooglePayment(
 | `paymentId`     | `Long?`   | ID of the cancelled payment.     |
 | `paymentStatus` | `String?` | Status of the cancelled payment. |
 
-#### `RefundPayment` Structure
+## `RefundPayment` Structure
 &emsp;Details of an individual refund transaction.
 
 | Property        | Type      | Description                                       |
@@ -757,7 +944,7 @@ sdk.confirmGooglePayment(
 | `createDate`    | `String?` | Date and time of the refund.                      |
 | `reference`     | `Long?`   | System-generated reference number for the refund. |
 
-#### `ClearingStatus` Structure
+## `ClearingStatus` Structure
 &emsp;Represents the status of a clearing operation.
 
 | Type                         | Description                                                                                               |
@@ -766,7 +953,7 @@ sdk.confirmGooglePayment(
 | `ExceedsPaymentAmount`       | Indicates that the requested clearing amount exceeded the originally authorized payment amount.           |
 | `Failed`                     | Indicates that the clearing operation failed.                                                             |
 
-#### `Card` Structure
+## `Card` Structure
 &emsp;Represents a single tokenized payment card associated with a user.
 
 | Property             | Type      | Description                                            |
@@ -778,7 +965,7 @@ sdk.confirmGooglePayment(
 | `cardHash`           | `String?` | Masked Primary Account Number (PAN) of the card.       |
 | `createdAt`          | `String?` | Date and time when the card was added.                 |
 
-#### `RemovedCard` Structure
+## `RemovedCard` Structure
 &emsp;Represents the outcome of an attempt to remove a stored card.
 
 | Property     | Type      | Description                                      |
@@ -788,7 +975,7 @@ sdk.confirmGooglePayment(
 | `cardHash`   | `String?` | Masked Primary Account Number (PAN) of the card. |
 | `deletedAt`  | `String?` | Date and time when the card was deleted.         |
 
-#### `ConfirmPaymentStatus` Structure
+## `ConfirmPaymentStatus` Structure
 &emsp;Represents the basic outcome of confirming a card payment.
 
 | Type      | Description                                                                      |
@@ -796,46 +983,55 @@ sdk.confirmGooglePayment(
 | `Success` | Indicates that the card payment confirmation process was completed successfully. |
 | `Failure` | Indicates that the card payment confirmation process failed.                     |
 
-#### `GooglePayment` Structure
+## `GooglePayment` Structure
 &emsp;The response received after initiating a Google Pay transaction.
 
 | Property    | Type     | Description                                                 |
 |-------------|----------|-------------------------------------------------------------|
 | `paymentId` | `String` | Unique identifier for the initiated Google Pay transaction. |
 
-#### `Currency` Structure
+## `ValidationErrorType` Structure
+
+| Enum Constant            | Description                                                                |
+|--------------------------|----------------------------------------------------------------------------|
+| `INVALID_MERCHANT_ID`    | Provided merchant ID is invalid or missing.                                |
+| `INVALID_SECRET_KEY`     | Provided secret key is invalid or missing.                                 |
+| `INVALID_PAYMENT_AMOUNT` | Payment amount is outside the allowed range (`0.01` - `99999999.00`).      |
+| `INVALID_ORDER_ID`       | Provided order ID does not meet the specified length constraints.          |
+| `INVALID_USER_ID`        | Provided user ID does not meet the specified format or length constraints. |
+| `INVALID_CARD_TOKEN`     | Provided card token does not meet the specified length constraints.        |
+
+## `Currency` Structure
 &emsp;The `Currency` enum defines all supported currency codes that can be used when specifying payment amounts.
-```kotlin
-enum class Currency(val value: String) {
-    KZT("KZT"),
-    RUB("RUB"),
-    USD("USD"),
-    UZS("UZS"),
-    KGS("KGS"),
-    EUR("EUR"),
-    HKD("HKD"),
-    GBP("GBP"),
-    AED("AED"),
-    CNY("CNY"),
-    KRW("KRW"),
-    INR("INR"),
-    THB("THB"),
-    UAH("UAH"),
-    AMD("AMD"),
-    BYN("BYN"),
-    PLN("PLN"),
-    CZK("CZK"),
-    AZN("AZN"),
-    GEL("GEL"),
-    TJS("TJS"),
-    CAD("CAD"),
-    MDL("MDL"),
-    TRY("TRY")
-}
-```
+
+| Enum Constant | Description                  |
+|---------------|------------------------------|
+| `KZT`         | Kazakhstani tenge.           |
+| `RUB`         | Russian ruble.               |
+| `USD`         | US dollar.                   |
+| `UZS`         | Uzbek sum.                   |
+| `KGS`         | Kyrgyzstani som.             |
+| `EUR`         | Euro.                        |
+| `HKD`         | Hong Kong dollar.            |
+| `GBP`         | British pound.               |
+| `AED`         | United Arab Emirates dirham. |
+| `CNY`         | Chinese yuan.                |
+| `KRW`         | South Korean won.            |
+| `INR`         | Indian rupee.                |
+| `THB`         | Thai baht.                   |
+| `UAH`         | Ukrainian hryvnia.           |
+| `AMD`         | Armenian dram.               |
+| `BYN`         | Belarusian ruble.            |
+| `PLN`         | Polish złoty.                |
+| `CZK`         | Czech koruna.                |
+| `AZN`         | Azerbaijani manat.           |
+| `GEL`         | Georgian lari.               |
+| `TJS`         | Tajikistani somoni.          |
+| `CAD`         | Canadian dollar.             |
+| `MDL`         | Moldovan leu.                |
+| `TRY`         | Turkish lira.                |
 
 ---
-### Support
-- **If you have questions or need help, feel free to reach out!** 👋
-- **Email**: support@freedompay.kz
-
+# Support
+> **NOTE** If you have questions or need help, feel free to reach out! 👋
+> - **Email**: support@freedompay.kz

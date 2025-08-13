@@ -8,7 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>kz.freedompay</groupId>
   <artifactId>freedom-payment-sdk</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4</version>
   <packaging>aar</packaging>
   <name>Freedom Payment SDK</name>
   <description>Official SDK for FreedomPay mobile payments</description>
