@@ -502,17 +502,17 @@ freedomApi.createCardPayment(
 
 &emsp;This method takes these parameters:
 
-| Parameter   | Type                                            | Description                                                                                                                                        |
-|-------------|-------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
-| `paymentId` | `Long`                                          | Unique identifier of the payment to confirm. This paymentId is obtained from the [`createCardPayment`](#create-card-payment) method.               |
-| `onResult`  | `(FreedomResult<ConfirmPaymentStatus>) -> Unit` | Callback function that will be invoked with the result of the refund process. See [`ConfirmPaymentStatus`](#confirmpaymentstatus-structure) model. |
+| Parameter   | Type                                       | Description                                                                                                                                   |
+|-------------|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `paymentId` | `Long`                                     | Unique identifier of the payment to confirm. This paymentId is obtained from the [`createCardPayment`](#create-card-payment) method.          |
+| `onResult`  | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked upon the completion of the payment process. See [`PaymentResponse`](#paymentresponse-structure) model. |                                                                          |
 
-&emsp;The process returns an [`FreedomResult<ConfirmPaymentStatus>`](#error-handling-and-results) object, which can be either:
-- **Success**: Contains a `ConfirmPaymentStatus` object.
+&emsp;The process returns an [`FreedomResult<PaymentResponse>`](#error-handling-and-results) object, which can be either:
+- **Success**: Contains a `PaymentResponse` object.
 - **Error**: Specifies the type of error that occurred.
 
 ```kotlin
-freedomApi.confirmCardPayment(paymentId = 123456L) { result: FreedomResult<ConfirmPaymentStatus> ->
+freedomApi.confirmCardPayment(paymentId = 123456L) { result: FreedomResult<PaymentResponse> ->
     when (result) {
         is FreedomResult.Success -> {
             // Card payment successfully confirmed.
@@ -529,10 +529,10 @@ freedomApi.confirmCardPayment(paymentId = 123456L) { result: FreedomResult<Confi
 
 &emsp;This method takes these parameters:
 
-| Parameter   | Type                                       | Description                                                                                                                              |
-|-------------|--------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| `paymentId` | `Long`                                     | Unique identifier of the payment to confirm. This paymentId is obtained from the [`createCardPayment`](#create-card-payment) method.     |
-| `onResult`  | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the result of the refund process. See [`PaymentResponse`](#paymentresponse-structure) model. |
+| Parameter   | Type                                       | Description                                                                                                                               |
+|-------------|--------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `paymentId` | `Long`                                     | Unique identifier of the payment to confirm. This paymentId is obtained from the [`createCardPayment`](#create-card-payment) method.      |
+| `onResult`  | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the result of the payment process. See [`PaymentResponse`](#paymentresponse-structure) model. |
 
 &emsp;The process returns an [`FreedomResult<PaymentResponse>`](#error-handling-and-results) object, which can be either:
 - **Success**: Contains a `PaymentResponse` object.
@@ -817,9 +817,10 @@ sdk.confirmGooglePayment(
 ![Mind Map of Freedom Result — Light](documentation-assets/FreedomResult(Light).png#gh-light-mode-only)
 ![Mind Map of Freedom Result — Dark](documentation-assets/FreedomResult(Dark).png#gh-dark-mode-only)
 
+
 ## `FreedomResult.Success<T>`
 - **Description**: Represents a successful completion of the SDK operation.
-- `value: T`: Holds the actual result data of the operation. The type T will vary depending on the specific method called (e.g., Payment, List<Card>, ConfirmPaymentStatus, Unit).
+- `value: T`: Holds the actual result data of the operation. The type T will vary depending on the specific method called (e.g., PaymentResponse, List<Card>, Status).
 
 ## `FreedomResult.Error` Sub-Types
 &emsp;The `Error` interface is a sealed hierarchy itself, providing distinct types of errors for more precise handling.
@@ -891,39 +892,51 @@ sdk.confirmGooglePayment(
 | `extraParams` | `HashMap<String, String>?`                           | Optional map of additional key-value pairs to pass custom data with the payment.                                                                                               | Optional. Defaults to null.                                              |
 
 ## `PaymentResponse` Structure
+
 &emsp;The `PaymentResponse` data class represents a successful payment transaction.
 
-| Property     | Type      | Description                                     |
-|--------------|-----------|-------------------------------------------------|
-| `status`     | `String`  | Status of the operation.                        |
-| `paymentId`  | `Long`    | Unique identifier for this payment.             |
-| `merchantId` | `String`  | ID of the merchant associated with the payment. |
-| `orderId`    | `String?` | Order ID provided during payment creation.      |
+| Property     | Type                     | Description                                     |
+|--------------|--------------------------|-------------------------------------------------|
+| `status`     | `PaymentResponse.Status` | Status of the operation.                        |
+| `paymentId`  | `Long`                   | Unique identifier for this payment.             |
+| `merchantId` | `String`                 | ID of the merchant associated with the payment. |
+| `orderId`    | `String?`                | Order ID provided during payment creation.      |
+
+| Property                                           | Type        | Description                                                                                             |
+|----------------------------------------------------|-------------|---------------------------------------------------------------------------------------------------------|
+| `New`                                              | data object | Payment has been created but no processing has started yet.                                             |
+| `Waiting`                                          | data object | Payment is pending further action or confirmation.                                                      |
+| `Processing`                                       | data object | Payment is actively being handled by the system or provider.                                            |
+| `Success`                                          | data object | Payment was completed successfully and funds have been confirmed.                                       |
+| `Unknown(val value: String)`                       | data class  | Status value is not recognized by the SDK, possibly due to a new or unexpected status from the backend. |
+| `Error(val code: String, val description: String)` | data class  | Payment failed, with an error code and description available for diagnosis.                             |
 
 ## `Status` Structure
 &emsp;Provides comprehensive details about the current state of a payment.
 
-| Property          | Type                    | Description                                                             |
-|-------------------|-------------------------|-------------------------------------------------------------------------|
-| `status`          | `String`                | Status of the operation.                                                |
-| `paymentId`       | `Long`                  | Unique identifier for this payment.                                     |
-| `orderId`         | `String?`               | Order ID provided during payment creation.                              |
-| `currency`        | `String`                | Currency code of the payment.                                           |
-| `amount`          | `Float`                 | Original amount of the payment.                                         |
-| `canReject`       | `Boolean?`              | Indicates if the payment can still be cancelled.                        |
-| `paymentMethod`   | `String?`               | Method used for payment.                                                |
-| `paymentStatus`   | `String?`               | Current status of the payment.                                          |
-| `clearingAmount`  | `Float?`                | Total amount that has been cleared (captured) for this payment.         |
-| `revokedAmount`   | `Float?`                | Total amount that has been cancelled for this payment.                  |
-| `refundAmount`    | `Float?`                | Total amount that has been refunded.                                    |
-| `cardName`        | `String?`               | Name on the card used for the payment.                                  |
-| `cardPan`         | `String?`               | Masked Primary Account Number (PAN) of the card.                        |
-| `revokedPayments` | `List<RevokedPayment>?` | List of individual cancelled transactions associated with this payment. |
-| `refundPayments`  | `List<RefundPayment>?`  | List of individual refund transactions associated with this payment.    |
-| `reference`       | `Long?`                 | System-generated reference number for the payment.                      |
-| `captured`        | `Boolean?`              | Indicates if the funds for the payment have been captured.              |
-| `createDate`      | `String`                | Date and time when the payment was created.                             |
-| `authCode`        | `Int?`                  | Authorization code for the payment.                                     |
+| Property             | Type                    | Description                                                             |
+|----------------------|-------------------------|-------------------------------------------------------------------------|
+| `status`             | `String`                | Status of the operation.                                                |
+| `paymentId`          | `Long`                  | Unique identifier for this payment.                                     |
+| `orderId`            | `String?`               | Order ID provided during payment creation.                              |
+| `currency`           | `String`                | Currency code of the payment.                                           |
+| `amount`             | `Float`                 | Original amount of the payment.                                         |
+| `canReject`          | `Boolean?`              | Indicates if the payment can still be cancelled.                        |
+| `paymentMethod`      | `String?`               | Method used for payment.                                                |
+| `paymentStatus`      | `String?`               | Current status of the payment.                                          |
+| `clearingAmount`     | `Float?`                | Total amount that has been cleared (captured) for this payment.         |
+| `revokedAmount`      | `Float?`                | Total amount that has been cancelled for this payment.                  |
+| `refundAmount`       | `Float?`                | Total amount that has been refunded.                                    |
+| `cardName`           | `String?`               | Name on the card used for the payment.                                  |
+| `cardPan`            | `String?`               | Masked Primary Account Number (PAN) of the card.                        |
+| `revokedPayments`    | `List<RevokedPayment>?` | List of individual cancelled transactions associated with this payment. |
+| `refundPayments`     | `List<RefundPayment>?`  | List of individual refund transactions associated with this payment.    |
+| `reference`          | `Long?`                 | System-generated reference number for the payment.                      |
+| `captured`           | `Boolean?`              | Indicates if the funds for the payment have been captured.              |
+| `createDate`         | `String`                | Date and time when the payment was created.                             |
+| `authCode`           | `Int?`                  | Authorization code for the payment.                                     |
+| `failureCode`        | `String?`               | Code indicating why the payment failed                                  |
+| `failureDescription` | `String?`               | Human-readable reason for the payment failure                           |
 
 ## `RevokedPayment` Structure
 &emsp;Details of an individual cancelled transaction.
@@ -974,14 +987,6 @@ sdk.confirmGooglePayment(
 | `merchantId` | `String?` | ID of the merchant.                              |
 | `cardHash`   | `String?` | Masked Primary Account Number (PAN) of the card. |
 | `deletedAt`  | `String?` | Date and time when the card was deleted.         |
-
-## `ConfirmPaymentStatus` Structure
-&emsp;Represents the basic outcome of confirming a card payment.
-
-| Type      | Description                                                                      |
-|-----------|----------------------------------------------------------------------------------|
-| `Success` | Indicates that the card payment confirmation process was completed successfully. |
-| `Failure` | Indicates that the card payment confirmation process failed.                     |
 
 ## `GooglePayment` Structure
 &emsp;The response received after initiating a Google Pay transaction.
