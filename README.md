@@ -93,7 +93,6 @@ val freedomApi = FreedomAPI.create(merchantId, secretKey, region)
 | Enum Constant | Description        |
 |---------------|--------------------|
 | `KZ`          | Kazakhstan region. |
-| `RU`          | Russia region.     |
 | `UZ`          | Uzbekistan region. |
 | `KG`          | Kyrgyzstan region. |
 
