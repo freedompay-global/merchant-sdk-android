@@ -252,17 +252,18 @@ freedomApi.createPaymentPage(
 
 &emsp;This method takes these parameters:
 
-| Parameter   | Type                              | Description                                                                                                            |
-|-------------|-----------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| `paymentId` | `Long`                            | Unique identifier of the payment you want to check.                                                                    |
-| `onResult`  | `(FreedomResult<Status>) -> Unit` | Callback function that will be invoked with the result of the payment status. See [`Status`](#status-structure) model. |
+| Parameter                    | Type                              | Description                                                                                                            |
+|------------------------------|-----------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| `paymentId`                  | `Long`                            | Unique identifier of the payment you want to check.                                                                    |
+| `includeLastTransactionInfo` | `Boolean?`                        | Optional. When true, includes details of the most recent transaction in the response.                                  |
+| `onResult`                   | `(FreedomResult<Status>) -> Unit` | Callback function that will be invoked with the result of the payment status. See [`Status`](#status-structure) model. |
 
 &emsp;The process returns an [`FreedomResult<Status>`](#error-handling-and-results) object, which can be either:
 - **Success**: Contains a `Status` object.
 - **Error**: Specifies the type of error that occurred.
 
 ```kotlin
-freedomApi.getPaymentStatus(paymentId = 123456L) { result: FreedomResult<Status> ->
+freedomApi.getPaymentStatus(paymentId = 123456L, includeLastTransactionInfo = true) { result: FreedomResult<Status> ->
     when (result) {
         is FreedomResult.Success -> {
             // Payment status retrieved successfully.
@@ -906,6 +907,7 @@ sdk.confirmGooglePayment(
 | `New`                                              | data object | Payment has been created but no processing has started yet.                                             |
 | `Waiting`                                          | data object | Payment is pending further action or confirmation.                                                      |
 | `Processing`                                       | data object | Payment is actively being handled by the system or provider.                                            |
+| `Incomplete`                                       | data object | Indicates that the payment was initiated but did not reach a final state within the allotted time.      |
 | `Success`                                          | data object | Payment was completed successfully and funds have been confirmed.                                       |
 | `Unknown(val value: String)`                       | data class  | Status value is not recognized by the SDK, possibly due to a new or unexpected status from the backend. |
 | `Error(val code: String, val description: String)` | data class  | Payment failed, with an error code and description available for diagnosis.                             |
@@ -913,29 +915,30 @@ sdk.confirmGooglePayment(
 ## `Status` Structure
 &emsp;Provides comprehensive details about the current state of a payment.
 
-| Property             | Type                    | Description                                                             |
-|----------------------|-------------------------|-------------------------------------------------------------------------|
-| `status`             | `String`                | Status of the operation.                                                |
-| `paymentId`          | `Long`                  | Unique identifier for this payment.                                     |
-| `orderId`            | `String?`               | Order ID provided during payment creation.                              |
-| `currency`           | `String`                | Currency code of the payment.                                           |
-| `amount`             | `Float`                 | Original amount of the payment.                                         |
-| `canReject`          | `Boolean?`              | Indicates if the payment can still be cancelled.                        |
-| `paymentMethod`      | `String?`               | Method used for payment.                                                |
-| `paymentStatus`      | `String?`               | Current status of the payment.                                          |
-| `clearingAmount`     | `Float?`                | Total amount that has been cleared (captured) for this payment.         |
-| `revokedAmount`      | `Float?`                | Total amount that has been cancelled for this payment.                  |
-| `refundAmount`       | `Float?`                | Total amount that has been refunded.                                    |
-| `cardName`           | `String?`               | Name on the card used for the payment.                                  |
-| `cardPan`            | `String?`               | Masked Primary Account Number (PAN) of the card.                        |
-| `revokedPayments`    | `List<RevokedPayment>?` | List of individual cancelled transactions associated with this payment. |
-| `refundPayments`     | `List<RefundPayment>?`  | List of individual refund transactions associated with this payment.    |
-| `reference`          | `Long?`                 | System-generated reference number for the payment.                      |
-| `captured`           | `Boolean?`              | Indicates if the funds for the payment have been captured.              |
-| `createDate`         | `String`                | Date and time when the payment was created.                             |
-| `authCode`           | `Int?`                  | Authorization code for the payment.                                     |
-| `failureCode`        | `String?`               | Code indicating why the payment failed                                  |
-| `failureDescription` | `String?`               | Human-readable reason for the payment failure                           |
+| Property              | Type                    | Description                                                             |
+|-----------------------|-------------------------|-------------------------------------------------------------------------|
+| `status`              | `String`                | Status of the operation.                                                |
+| `paymentId`           | `Long`                  | Unique identifier for this payment.                                     |
+| `orderId`             | `String?`               | Order ID provided during payment creation.                              |
+| `currency`            | `String`                | Currency code of the payment.                                           |
+| `amount`              | `Float`                 | Original amount of the payment.                                         |
+| `canReject`           | `Boolean?`              | Indicates if the payment can still be cancelled.                        |
+| `paymentMethod`       | `String?`               | Method used for payment.                                                |
+| `paymentStatus`       | `String?`               | Current status of the payment.                                          |
+| `clearingAmount`      | `Float?`                | Total amount that has been cleared (captured) for this payment.         |
+| `revokedAmount`       | `Float?`                | Total amount that has been cancelled for this payment.                  |
+| `refundAmount`        | `Float?`                | Total amount that has been refunded.                                    |
+| `cardName`            | `String?`               | Name on the card used for the payment.                                  |
+| `cardPan`             | `String?`               | Masked Primary Account Number (PAN) of the card.                        |
+| `revokedPayments`     | `List<RevokedPayment>?` | List of individual cancelled transactions associated with this payment. |
+| `refundPayments`      | `List<RefundPayment>?`  | List of individual refund transactions associated with this payment.    |
+| `reference`           | `Long?`                 | System-generated reference number for the payment.                      |
+| `captured`            | `Boolean?`              | Indicates if the funds for the payment have been captured.              |
+| `createDate`          | `String`                | Date and time when the payment was created.                             |
+| `authCode`            | `Int?`                  | Authorization code for the payment.                                     |
+| `failureCode`         | `String?`               | Code indicating why the payment failed.                                 |
+| `failureDescription`  | `String?`               | Human-readable reason for the payment failure.                          |
+| `lastTransactionInfo` | `LastTransactionInfo?`  | Details of the most recent transaction associated with this payment.    |
 
 ## `RevokedPayment` Structure
 &emsp;Details of an individual cancelled transaction.
@@ -955,6 +958,15 @@ sdk.confirmGooglePayment(
 | `amount`        | `Float?`  | Amount that was refunded in this transaction.     |
 | `createDate`    | `String?` | Date and time of the refund.                      |
 | `reference`     | `Long?`   | System-generated reference number for the refund. |
+
+## `LastTransactionInfo` Structure
+&emsp;Details of the most recent transaction associated with this payment
+
+| Property             | Type      | Description                                        |
+|----------------------|-----------|----------------------------------------------------|
+| `status`             | `String`  | Status of the last transaction.                    |
+| `failureCode`        | `String?` | Code indicating why the transaction failed.        |
+| `failureDescription` | `String?` | Human-readable reason for the transaction failure. |
 
 ## `ClearingStatus` Structure
 &emsp;Represents the status of a clearing operation.
