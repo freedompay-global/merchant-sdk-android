@@ -935,7 +935,8 @@ sdk.confirmGooglePayment(
 | `reference`           | `Long?`                 | System-generated reference number for the payment.                      |
 | `captured`            | `Boolean?`              | Indicates if the funds for the payment have been captured.              |
 | `createDate`          | `String`                | Date and time when the payment was created.                             |
-| `authCode`            | `Int?`                  | Authorization code for the payment.                                     |
+| `authorizationCode`   | `String?`               | Authorization code for the payment, including alphanumeric values.      |
+| `authCode`            | `Int?`                  | Deprecated numeric authorization code. Use `authorizationCode` instead. |
 | `failureCode`         | `String?`               | Code indicating why the payment failed.                                 |
 | `failureDescription`  | `String?`               | Human-readable reason for the payment failure.                          |
 | `lastTransactionInfo` | `LastTransactionInfo?`  | Details of the most recent transaction associated with this payment.    |
