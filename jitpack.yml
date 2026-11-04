@@ -1,2 +1,2 @@
 install:
-  - mvn install:install-file -Dfile=freedom-payment-sdk-1.1.8.aar -DpomFile=pom.xml -DgroupId=kz.freedompay -DartifactId=freedom-payment-sdk -Dversion=1.1.8 -Dpackaging=aar
+  - mvn install:install-file -Dfile=freedom-payment-sdk-1.2.0.aar -DpomFile=pom.xml -DgroupId=kz.freedompay -DartifactId=freedom-payment-sdk -Dversion=1.2.0 -Dpackaging=aar
