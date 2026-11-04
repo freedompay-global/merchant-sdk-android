@@ -3,6 +3,8 @@
 
 &emsp;The Merchant SDK is a library that simplifies interaction with the Freedom Pay API. Supports Android 9 and above.
 
+&emsp;Updating to a newer version of the SDK? See our [migration guide](MIGRATION_GUIDE.md).
+
 ---
 # Table of Contents
 > **NOTE**
@@ -32,8 +34,8 @@
 >   - [1. Registering in Google Pay Business Console](#1-registering-in-google-pay-business-console)
 >   - [2. Integrating the Google Pay SDK into your project](#2-integrating-the-google-pay-sdk-into-your-project)
 >   - [3. Initialization of `PaymentsClient` and `PayButton`](#3-initialization-of-paymentsclient-and-paybutton)
->   - [4. Creating a Google Pay Transaction](#4-creating-a-google-pay-transaction)
->   - [5. Confirming a Google Pay Transaction](#5-confirming-a-google-pay-transaction)
+>   - [4. Getting a Google Pay Token](#4-getting-a-google-pay-token)
+>   - [5. Paying with Google Pay](#5-paying-with-google-pay)
 > - [Error Handling and Results](#error-handling-and-results)
 >     - [`FreedomResult.Success<T>`](#freedomresultsuccesst)
 >     - [`FreedomResult.Error` Sub-Types](#freedomresulterror-sub-types)
@@ -561,8 +563,8 @@ freedomApi.confirmDirectPayment(paymentId = 123456L) { result: FreedomResult<Pay
 - [1. Registering in Google Pay Business Console](#1-registering-in-google-pay-business-console)
 - [2. Integrating the Google Pay SDK into your project](#2-integrating-the-google-pay-sdk-into-your-project)
 - [3. Initialization of `PaymentsClient` and `PayButton`](#3-initialization-of-paymentsclient-and-paybutton)
-- [4. Creating a Google Pay Transaction](#4-creating-a-google-pay-transaction)
-- [5. Confirming a Google Pay Transaction](#5-confirming-a-google-pay-transaction)
+- [4. Getting a Google Pay Token](#4-getting-a-google-pay-token)
+- [5. Paying with Google Pay](#5-paying-with-google-pay)
 
 ## 1. Registering in Google Pay Business Console
 
@@ -627,49 +629,19 @@ val googlePaymentsClient = Wallet.getPaymentsClient(
 | `ENVIRONMENT_PRODUCTION` | Production environment |
 | `ENVIRONMENT_TEST`       | Test environment       |
 
-## 4. Creating a Google Pay Transaction
+## 4. Getting a Google Pay Token
 
-### Step 4.1. Create Google Payment
-&emsp;The `createGooglePayment` method is the first step in processing a payment via Google Pay using the SDK. This method initiates a Google Pay payment.
-
-&emsp;This method takes these parameters:
-
-| Parameter        | Type                                     | Description                                                                                                                                     |
-|------------------|------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
-| `paymentRequest` | `StandardPaymentRequest`                 | Essential details required to initiate a new payment. See [`StandardPaymentRequest`](#standardpaymentrequest-structure) model.                  |
-| `onResult`       | `(FreedomResult<GooglePayment>) -> Unit` | Callback function that will be invoked with the result of the Google payment initiation. See [`GooglePayment`](#googlepayment-structure) model. |
-
-&emsp;The process returns an [`FreedomResult<GooglePayment>`](#error-handling-and-results) object, which can be either:
-- **Success**: Contains a `GooglePayment` object.
-- **Error**: Specifies the type of error that occurred.
+### Step 4.1. Launch Google Pay
+&emsp;When the user taps the Google Pay button, request payment data from Google Pay. No SDK call is needed at this step: the SDK is called once Google Pay returns the token (see [Step 4.3](#step-43-handling-the-onactivityresult)).
 
 ```kotlin
-val paymentRequest = StandardPaymentRequest(
-    amount = 123.45f,
-    currency = Currency.KZT,
-    description = "Google Pay Purchase",
-    userId = "user12345",
-)
-
 googlePayButton.setOnClickListener {
-    freedomApi.createGooglePayment(
-      paymentRequest = paymentRequest
-    ) { result: FreedomResult<GooglePayment> ->
-        when (result) {
-            is FreedomResult.Success -> {
-                val googlePayment = result.value
-                // Initiates the payment data loading using Google Pay.
-                AutoResolveHelper.resolveTask(
-                    googlePaymentsClient.loadPaymentData(createPaymentDataRequest()),
-                    this,
-                    REQUEST_CODE
-                )
-            }
-            is FreedomResult.Error -> {
-                // Failed to initiate Google Payment with SDK
-            }
-        }
-    }
+    // Initiates the payment data loading using Google Pay.
+    AutoResolveHelper.resolveTask(
+        googlePaymentsClient.loadPaymentData(createPaymentDataRequest()),
+        this,
+        REQUEST_CODE
+    )
 }
 
 companion object {
@@ -700,9 +672,9 @@ private fun createPaymentDataRequest(): PaymentDataRequest {
                 .setCurrencyCode("KZT") // Currency code (e.g., 'KZT').
                 .build()
         )
-        // Specify the payment methods.
-        .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_CARD)
-        .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_TOKENIZED_CARD)
+      // Specify the payment methods.
+      .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_CARD)
+      .addAllowedPaymentMethod(WalletConstants.PAYMENT_METHOD_TOKENIZED_CARD)
     
         // Setting requirements for the bank card.
         .setCardRequirements(
@@ -754,8 +726,9 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) 
                 Activity.RESULT_OK -> {
                     if (data == null) return
 
+                    val paymentData = PaymentData.getFromIntent(data)
                     val googlePayToken = paymentData?.paymentMethodToken?.token ?: return
-                    // After receiving the token, we confirm the payment by calling confirmGooglePayment.
+                    // After receiving the token, we make the payment by calling payWithGooglePay.
                 }
                 AutoResolveHelper.RESULT_ERROR -> {
                     if (data == null) return
@@ -776,36 +749,54 @@ override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) 
 > - `Activity.RESULT_OK` indicates the successful completion of the operation.
 > - `AutoResolveHelper.RESULT_ERROR` indicates that an error occurred while resolving the request.
 
-## 5. Confirming a Google Pay Transaction
-&emsp;The `confirmGooglePayment` method is the final step in processing a Google Pay transaction with the SDK. After you have successfully obtained the Google Pay token from the Google Pay API (e.g., from PaymentData in onActivityResult), you pass this token along with the `googlePayment` received from [`createGooglePayment`](#step-41-create-google-payment) to this method to finalize the transaction.
+## 5. Paying with Google Pay
+&emsp;The `payWithGooglePay` method is the final step in processing a Google Pay payment with the SDK. After you have obtained the Google Pay token (see [Step 4.3](#step-43-handling-the-onactivityresult)), pass it to this method together with the payment details.
+
+> **WARNING**
+> This method requires that a `PaymentView` has been set using [`freedomApi.setPaymentView()`](#integrating-the-paymentview-optional) prior to calling it. If the bank requires 3-D Secure, the SDK shows the bank's page in the `PaymentView`; without it, the payment fails with `PaymentViewIsNotInitialized`.
 
 &emsp;This method takes these parameters:
 
-| Parameter  | Type                                       | Description                                                                                                                                                           |
-|------------|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `payment`  | `GooglePayment`                            | Payment previously obtained from a successful call to [`createGooglePayment`](#step-41-create-google-payment). See [`GooglePayment`](#googlepayment-structure) model. |
-| `token`    | `String`                                   | Encrypted payment token received from the Google Pay API. This token contains the sensitive card data securely.                                                       |
-| `onResult` | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the final result of the Google Pay transaction confirmation. See [`PaymentResponse`](#paymentresponse-structure) model.   |
+| Parameter        | Type                                       | Description                                                                                                                                                                    |
+|------------------|--------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `paymentRequest` | `StandardPaymentRequest`                   | Essential details required to make a payment. `amount` and `currency` must match the ones in your Google Pay request. See [`StandardPaymentRequest`](#standardpaymentrequest-structure) model. |
+| `token`          | `String`                                   | Encrypted payment token received from the Google Pay API. This token contains the sensitive card data securely.                                                                |
+| `force3DS`       | `Boolean`                                  | Optional. Defaults to `false`. Set to `true` to require 3-D Secure for this payment.                                                                                          |
+| `onResult`       | `(FreedomResult<PaymentResponse>) -> Unit` | Callback function that will be invoked with the final result of the Google Pay payment. See [`PaymentResponse`](#paymentresponse-structure) model.                             |
 
 &emsp;The process returns an [`FreedomResult<PaymentResponse>`](#error-handling-and-results) object, which can be either:
-- **Success**: Contains a `PaymentResponse` object.
+- **Success**: Contains a `PaymentResponse` object. Check its `status`:
+  - `Success`: the payment is completed.
+  - `Error`: the payment was declined (for example, 3-D Secure failed). The `code` and `description` explain why.
+  - Any other status: the user closed the 3-D Secure page before the bank responded. Check the final status later with [`getPaymentStatus`](#get-payment-status).
 - **Error**: Specifies the type of error that occurred.
 
 ```kotlin
-sdk.confirmGooglePayment(
-    payment = googlePayment,
+val paymentRequest = StandardPaymentRequest(
+    amount = 123.45f,
+    currency = Currency.KZT,
+    description = "Google Pay Purchase",
+    orderId = "ORDER-2025-001",
+)
+
+freedomApi.payWithGooglePay(
+    paymentRequest = paymentRequest,
     token = googlePayToken
 ) { result: FreedomResult<PaymentResponse> ->
     when (result) {
         is FreedomResult.Success -> {
-            // Google Pay payment confirmation successful
+            // Google Pay payment processed. Check result.value.status
         }
         is FreedomResult.Error -> {
-            // Failed to confirm Google Pay payment with SDK
+            // Failed to process Google Pay payment with SDK
         }
     }
 }
 ```
+
+> **NOTE**
+> - 3-D Secure: the SDK shows the `PaymentView` with the bank's page and hides it once the payment gets a final status. There is no time limit for the user to complete it.
+> - To let the user cancel 3-D Secure (for example, on a Back press), hide the `PaymentView` (`paymentView.visibility = View.GONE`). The SDK then returns the latest known status.
 
 ---
 
@@ -999,13 +990,6 @@ sdk.confirmGooglePayment(
 | `merchantId` | `String?` | ID of the merchant.                              |
 | `cardHash`   | `String?` | Masked Primary Account Number (PAN) of the card. |
 | `deletedAt`  | `String?` | Date and time when the card was deleted.         |
-
-## `GooglePayment` Structure
-&emsp;The response received after initiating a Google Pay transaction.
-
-| Property    | Type     | Description                                                 |
-|-------------|----------|-------------------------------------------------------------|
-| `paymentId` | `String` | Unique identifier for the initiated Google Pay transaction. |
 
 ## `ValidationErrorType` Structure
 
